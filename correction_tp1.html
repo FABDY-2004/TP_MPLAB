@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Correction TP1 — Exercices 1 et 2</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 0 20px;
+        background: #f9f9f9;
+        color: #222;
+        line-height: 1.5;
+    }
+    h1 {
+        text-align: center;
+        border-bottom: 3px solid #333;
+        padding-bottom: 10px;
+    }
+    h2 {
+        background: #333;
+        color: #fff;
+        padding: 8px 15px;
+        border-radius: 4px;
+        margin-top: 40px;
+    }
+    h3 {
+        color: #1a5276;
+        border-left: 4px solid #1a5276;
+        padding-left: 10px;
+        margin-top: 30px;
+    }
+    .points-corriger {
+        background: #fff3cd;
+        border: 1px solid #e0c36a;
+        border-radius: 6px;
+        padding: 15px 20px;
+        margin: 15px 0;
+    }
+    .points-corriger p {
+        margin: 8px 0;
+    }
+    .point-num {
+        font-weight: bold;
+        color: #856404;
+    }
+    .code-inline {
+        font-family: 'Consolas', 'Courier New', monospace;
+        background: #e8e8e8;
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 0.95em;
+    }
+    pre {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 15px;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+    .comment { color: #6a9955; }
+    .keyword { color: #569cd6; font-weight: bold; }
+    .type { color: #4ec9b0; }
+    .number { color: #b5cea8; }
+    .blank { color: #e06c75; font-weight: bold; }
+    .directive { color: #c586c0; }
+    .string { color: #ce9178; }
+    .intro-box {
+        background: #d4edda;
+        border: 1px solid #a3d9b1;
+        border-radius: 6px;
+        padding: 15px 20px;
+        margin: 15px 0;
+    }
+</style>
+</head>
+<body>
+
+<h1>Correction TP1 &mdash; Exercices 1 et 2</h1>
+
+<!-- ================================================================ -->
+<!-- EXERCICE 1                                                       -->
+<!-- ================================================================ -->
+
+<h2>Correction &mdash; Exercice 1</h2>
+
+<div class="intro-box">
+Je n'ai pas votre exercice 1, donc voici la correction compl&egrave;te avec les
+commentaires d&eacute;taill&eacute;s et les explications de ce qu'on fait &agrave; chaque &eacute;tape.
+</div>
+
+<pre>
+<span class="comment">/********************************************************************************/</span>
+<span class="comment">/*  TP1 Exercice 1 : Balayage de la table de transcodage                       */</span>
+<span class="comment">/*  Affiche 0, 1, 2 ... F sur le chiffre 0, 1 seconde par caractere            */</span>
+<span class="comment">/*  Permet de verifier visuellement la table 7 segments                        */</span>
+<span class="comment">/********************************************************************************/</span>
+<span class="directive">#include</span> <span class="string">&lt;p18f4520.h&gt;</span>
+<span class="directive">#include</span> <span class="string">&lt;delays.h&gt;</span>                     <span class="comment">/* Pour utiliser Delay10KTCYx            */</span>
+
+<span class="directive">#pragma config</span> OSC = HS               <span class="comment">/* Oscillateur haute vitesse (quartz 10 MHz)    */</span>
+<span class="directive">#pragma config</span> WDT = OFF              <span class="comment">/* Watchdog desactive                           */</span>
+
+<span class="comment">/* Table 7 segments, logique active bas (0 = segment allume, 1 = eteint)        */</span>
+<span class="comment">/* Ordre des bits : dp g f e d c b a                                            */</span>
+<span class="keyword">const</span> <span class="type">unsigned char</span> TABLE_7SEG[<span class="number">16</span>] = {
+    <span class="number">0xC0</span>, <span class="number">0xF9</span>, <span class="number">0xA4</span>, <span class="number">0xB0</span>,   <span class="comment">/* 0, 1, 2, 3                                   */</span>
+    <span class="number">0x99</span>, <span class="number">0x92</span>, <span class="number">0x82</span>, <span class="number">0xF8</span>,   <span class="comment">/* 4, 5, 6, 7                                   */</span>
+    <span class="number">0x80</span>, <span class="number">0x90</span>, <span class="number">0x88</span>, <span class="number">0x83</span>,   <span class="comment">/* 8, 9, A, b                                   */</span>
+    <span class="number">0xC6</span>, <span class="number">0xA1</span>, <span class="number">0x86</span>, <span class="number">0x8E</span>    <span class="comment">/* C, d, E, F                                   */</span>
+};
+
+<span class="type">void</span> main(<span class="type">void</span>)
+{
+    <span class="type">unsigned char</span> i;
+
+    <span class="comment">/* --- Initialisation --- */</span>
+    ADCON1 = (ADCON1 &amp; <span class="number">0xF0</span>) | <span class="number">0x0A</span>;  <span class="comment">/* PCFG=1010 : AN5-AN7 en numerique             */</span>
+                                        <span class="comment">/* &amp; 0xF0 preserve bits 7-4 (VCFG)              */</span>
+    TRISD  = <span class="number">0x00</span>;                      <span class="comment">/* RD7 a RD0 en sortie (segments)               */</span>
+    TRISE  = TRISE &amp; <span class="number">0xF8</span>;             <span class="comment">/* RE2-RE0 en sortie (selection chiffre)         */</span>
+                                        <span class="comment">/* &amp; 0xF8 preserve bits 7-3 (PSP)               */</span>
+    PORTD  = <span class="number">0xFF</span>;                      <span class="comment">/* Tous segments eteints (1 = eteint)            */</span>
+
+    <span class="comment">/* --- Boucle principale --- */</span>
+    <span class="keyword">while</span>(<span class="number">1</span>)
+    {
+        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">16</span>; i++)         <span class="comment">/* Parcourir les 16 caracteres hexa             */</span>
+        {
+            PORTE = (PORTE &amp; <span class="number">0xF8</span>) | <span class="number">0x00</span>;   <span class="comment">/* Activer chiffre 0 (sortie 00)         */</span>
+            PORTD = TABLE_7SEG[i];            <span class="comment">/* Charger les segments du caractere i    */</span>
+            Delay10KTCYx(<span class="number">250</span>);                <span class="comment">/* 250 * 10000 * 0.4us = 1 s             */</span>
+        }
+    }
+}
+</pre>
+
+<!-- ================================================================ -->
+<!-- EXERCICE 2                                                       -->
+<!-- ================================================================ -->
+
+<h2>Correction &mdash; Exercice 2</h2>
+
+<div class="intro-box">
+Le masquage de PORTE est bien fait (<span class="code-inline">(PORTE &amp; 0xF8) | affiche[n]</span>), et
+le tableau <span class="code-inline">affiche[]</span> pour les num&eacute;ros de sorties du d&eacute;codeur est une
+bonne approche. La structure de multiplexage (boucle <span class="code-inline">for</span> dans le
+<span class="code-inline">while(1)</span>) fonctionne aussi.<br><br>
+Par contre, les codes 7 segments sont &eacute;crits en dur dans
+<span class="code-inline">chiffre[4] = {0xF9, 0xA4, 0xB0, 0x99}</span> au lieu de d&eacute;composer le
+nombre et d'utiliser la table <span class="code-inline">TRANS[]</span>. &Ccedil;a marche pour 1234, mais si
+on change le nombre il faut tout refaire &agrave; la main. Et pour
+l'exercice 3 (compteur 0&ndash;9999) c'est impossible de faire comme &ccedil;a.
+L'id&eacute;e c'est de :
+<br>1. Stocker le nombre dans une variable (<span class="code-inline">Nombre = 1234</span>)
+<br>2. D&eacute;composer en chiffres individuels &rarr; <span class="code-inline">1</span>, <span class="code-inline">2</span>, <span class="code-inline">3</span>, <span class="code-inline">4</span>
+<br>3. Utiliser la table &rarr; <span class="code-inline">TRANS[1]</span>, <span class="code-inline">TRANS[2]</span>, <span class="code-inline">TRANS[3]</span>, <span class="code-inline">TRANS[4]</span>
+</div>
+
+<div class="points-corriger">
+<p><b>Les autres points &agrave; corriger :</b></p>
+
+<p><span class="point-num">1.</span> <span class="code-inline">ADCON1 = (ADCON1 &amp; 0xF0) | 0xEA</span> : le <span class="code-inline">0xEA</span> &eacute;tait une erreur dans le code de d&eacute;part qui &eacute;tait &agrave; corriger. <span class="code-inline">0xEA = 0b11101010</span>, les 4 bits de poids fort (<span class="code-inline">0xE</span>) &eacute;crasent les bits 7&ndash;4 (VCFG) que le masque <span class="code-inline">&amp; 0xF0</span> &eacute;tait cens&eacute; pr&eacute;server. Il fallait &eacute;crire <span class="code-inline">0x0A</span> et non <span class="code-inline">0xEA</span>.</p>
+
+<p><span class="point-num">2.</span> Il manque <span class="code-inline">#include &lt;delays.h&gt;</span> et un delay dans la boucle. Sans delay, c'est bon pour tester avec les points d'arr&ecirc;t dans MPLAB, mais pour laisser le programme tourner en autonome il en faut un pour que le multiplexage fonctionne correctement.</p>
+
+<p><span class="point-num">3.</span> Pas d'anti-ghosting : avant de charger les nouveaux segments dans PORTD, il faudrait &eacute;teindre tous les chiffres avec <span class="code-inline">PORTE = (PORTE &amp; 0xF8) | 0x07</span> (sortie 07 = rien). Sinon le chiffre pr&eacute;c&eacute;dent affiche bri&egrave;vement les mauvais segments. &Ccedil;a ne se voit pas vu la vitesse du processeur, mais ce n'est pas correct.</p>
+
+<p><span class="point-num">4.</span> Vous pouvez ajouter <span class="code-inline">PORTD = 0xFF;</span> au d&eacute;part pour &eacute;teindre tous les segments avant de commencer.</p>
+</div>
+
+<h3>Version corrig&eacute;e de l'exercice 2</h3>
+<p>Vous pouvez compl&eacute;ter les champs vides <span class="code-inline" style="color:#e06c75;">____</span></p>
+
+<pre>
+<span class="directive">#include</span> <span class="string">&lt;p18f4520.h&gt;</span>
+<span class="directive">#include</span> <span class="string">&lt;<span class="blank">____</span>&gt;</span>                         <span class="comment">/* Pour utiliser Delay1KTCYx            */</span>
+
+<span class="directive">#pragma config</span> OSC = HS
+<span class="directive">#pragma config</span> WDT = OFF
+
+<span class="keyword">const</span> <span class="type">unsigned char</span> TRANS[<span class="number">16</span>] = {
+    <span class="number">0xC0</span>, <span class="number">0xF9</span>, <span class="number">0xA4</span>, <span class="number">0xB0</span>, <span class="number">0x99</span>, <span class="number">0x92</span>, <span class="number">0x82</span>, <span class="number">0xF8</span>,
+    <span class="number">0x80</span>, <span class="number">0x90</span>, <span class="number">0x88</span>, <span class="number">0x83</span>, <span class="number">0xC6</span>, <span class="number">0xA1</span>, <span class="number">0x86</span>, <span class="number">0x8E</span>
+};
+
+<span class="type">void</span> main(<span class="type">void</span>)
+{
+    <span class="type">unsigned int</span> Nombre = <span class="number">1234</span>;
+    <span class="type">unsigned char</span> Chiffre[<span class="number">4</span>];
+    <span class="type">unsigned char</span> i;
+
+    <span class="comment">/* --- Initialisation --- */</span>
+    ADCON1 = (ADCON1 &amp; <span class="number">0xF0</span>) | <span class="blank">____</span>;   <span class="comment">/* AN5-AN7 en numerique (pas 0xEA !)   */</span>
+    TRISD  = <span class="number">0x00</span>;                       <span class="comment">/* Segments en sortie                  */</span>
+    TRISE  = TRISE &amp; <span class="blank">____</span>;              <span class="comment">/* RE2-RE0 en sortie (preserve 7-3)    */</span>
+    PORTD  = <span class="blank">____</span>;                       <span class="comment">/* Tout eteint au depart               */</span>
+    PORTE  = (PORTE &amp; <span class="blank">____</span>) | <span class="blank">____</span>;    <span class="comment">/* Aucun chiffre actif (sortie 07)     */</span>
+
+    <span class="comment">/* --- Decomposition du nombre --- */</span>
+    <span class="comment">/* On decompose Nombre en 4 chiffres individuels                              */</span>
+    <span class="comment">/* puis on utilise la table TRANS[] pour obtenir les segments                  */</span>
+    Chiffre[<span class="number">0</span>] = <span class="blank">____________________</span>;       <span class="comment">/* Milliers  -&gt; chiffre 3         */</span>
+    Chiffre[<span class="number">1</span>] = <span class="blank">____________________</span>;       <span class="comment">/* Centaines -&gt; chiffre 2         */</span>
+    Chiffre[<span class="number">2</span>] = <span class="blank">____________________</span>;       <span class="comment">/* Dizaines  -&gt; chiffre 1         */</span>
+    Chiffre[<span class="number">3</span>] = <span class="blank">____________________</span>;       <span class="comment">/* Unites    -&gt; chiffre 0         */</span>
+
+    <span class="comment">/* --- Multiplexage avec boucle for --- */</span>
+    <span class="comment">/* i=0 : Chiffre[0]=milliers  -&gt; chiffre 3 (sortie 03)                        */</span>
+    <span class="comment">/* i=1 : Chiffre[1]=centaines -&gt; chiffre 2 (sortie 02)                        */</span>
+    <span class="comment">/* i=2 : Chiffre[2]=dizaines  -&gt; chiffre 1 (sortie 01)                        */</span>
+    <span class="comment">/* i=3 : Chiffre[3]=unites    -&gt; chiffre 0 (sortie 00)                        */</span>
+    <span class="comment">/* Astuce : le numero du chiffre = 3 - i                                      */</span>
+    <span class="keyword">while</span>(<span class="number">1</span>)
+    {
+        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++)
+        {
+            PORTE = (PORTE &amp; <span class="blank">____</span>) | <span class="blank">____</span>;           <span class="comment">/* 1. Eteindre            */</span>
+            PORTD = TRANS[ Chiffre[<span class="blank">____</span>] ];            <span class="comment">/* 2. Charger segments    */</span>
+            PORTE = (PORTE &amp; <span class="blank">____</span>) | (<span class="number">3</span> - i);        <span class="comment">/* 3. Allumer chiffre 3-i */</span>
+            Delay1KTCYx(<span class="blank">____</span>);                        <span class="comment">/* 4. Attendre 0.8 ms    */</span>
+        }
+    }
+}
+</pre>
+
+</body>
+</html>
