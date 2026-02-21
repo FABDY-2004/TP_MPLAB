@@ -2,230 +2,430 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Correction TP1 — Exercices 1 et 2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiche — Interruptions PIC18F4520</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        max-width: 900px;
-        margin: 30px auto;
-        padding: 0 20px;
-        background: #f9f9f9;
-        color: #222;
-        line-height: 1.5;
-    }
-    h1 {
-        text-align: center;
-        border-bottom: 3px solid #333;
-        padding-bottom: 10px;
-    }
-    h2 {
-        background: #333;
-        color: #fff;
-        padding: 8px 15px;
-        border-radius: 4px;
-        margin-top: 40px;
-    }
-    h3 {
-        color: #1a5276;
-        border-left: 4px solid #1a5276;
-        padding-left: 10px;
-        margin-top: 30px;
-    }
-    .points-corriger {
-        background: #fff3cd;
-        border: 1px solid #e0c36a;
-        border-radius: 6px;
-        padding: 15px 20px;
-        margin: 15px 0;
-    }
-    .points-corriger p {
-        margin: 8px 0;
-    }
-    .point-num {
-        font-weight: bold;
-        color: #856404;
-    }
-    .code-inline {
-        font-family: 'Consolas', 'Courier New', monospace;
-        background: #e8e8e8;
-        padding: 1px 5px;
-        border-radius: 3px;
-        font-size: 0.95em;
-    }
-    pre {
-        background: #1e1e1e;
-        color: #d4d4d4;
-        padding: 15px;
-        border-radius: 6px;
-        overflow-x: auto;
-        font-size: 13px;
-        line-height: 1.45;
-    }
-    .comment { color: #6a9955; }
-    .keyword { color: #569cd6; font-weight: bold; }
-    .type { color: #4ec9b0; }
-    .number { color: #b5cea8; }
-    .blank { color: #e06c75; font-weight: bold; }
-    .directive { color: #c586c0; }
-    .string { color: #ce9178; }
-    .intro-box {
-        background: #d4edda;
-        border: 1px solid #a3d9b1;
-        border-radius: 6px;
-        padding: 15px 20px;
-        margin: 15px 0;
-    }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#fff; color:#1a1a1a; font-family:'Inter',Arial,sans-serif; font-size:13px; line-height:1.45; }
+  code, pre, .tt { font-family:'JetBrains Mono',Consolas,monospace; }
+  .container { max-width:1100px; margin:0 auto; padding:16px 20px; }
+
+  /* Title */
+  .title-box { background:#1e3a5f; color:white; text-align:center; padding:12px 16px; border-radius:3px; margin-bottom:12px; }
+  .title-box h1 { font-size:20px; margin-bottom:4px; }
+  .title-box .sub { font-size:13px; }
+  .title-box .meta { font-size:10px; opacity:0.75; margin-top:3px; }
+
+  /* Section headers */
+  .sh { background:#1e3a5f; color:white; font-weight:bold; font-size:13px; padding:5px 10px; border-radius:2px; margin:14px 0 6px; }
+
+  /* Legend */
+  .legend { display:flex; flex-wrap:wrap; gap:5px; margin:5px 0 8px; font-size:11px; }
+  .legend span { padding:2px 6px; border:1px solid #bbb; }
+
+  /* Tables */
+  .ts { overflow-x:auto; margin:4px 0; }
+  table { width:100%; border-collapse:collapse; font-size:11px; }
+  th,td { padding:4px 6px; border:1px solid #bbb; text-align:center; }
+  th { background:#dbeafe; font-weight:600; font-size:10px; }
+  .l { text-align:left; }
+
+  /* Cell colors matching LaTeX exactly */
+  .cf { background:#FFF3CD; } .ce { background:#D1ECF1; } .cg { background:#D4EDDA; }
+  .cp { background:#F8D7DA; } .cm { background:#E2D5F1; } .cu { background:#E9E9E9; color:#888; }
+
+  /* Register maps */
+  .rn { font-weight:bold; font-size:13px; text-align:center; margin:10px 0 3px; font-family:'JetBrains Mono',monospace; }
+  .rnote { text-align:center; font-size:11px; color:#444; font-style:italic; margin:2px 0 8px; }
+  .rt td { min-width:70px; font-family:'JetBrains Mono',monospace; font-size:10px; padding:3px 4px; }
+  .rt tr:first-child td { font-size:9.5px; color:#555; }
+  .rt tr:nth-child(2) td { font-weight:bold; font-size:10.5px; }
+  .rt tr:nth-child(3) td { font-size:9.5px; color:#555; }
+
+  /* Code blocks with syntax colors */
+  .cb { background:#f8f9fa; border:1px solid #ddd; border-radius:3px; margin:6px 0; overflow:hidden; }
+  .cb pre { padding:8px 10px; overflow-x:auto; font-family:'JetBrains Mono',Consolas,monospace; font-size:11px; line-height:1.55; white-space:pre; }
+  /* Syntax classes */
+  .kw { color:#1a56db; font-weight:600; }      /* keywords: void, if, unsigned, char, volatile */
+  .cm-c { color:#374151; font-style:italic; }   /* comments */
+  .rg { color:#92400e; }                        /* register names */
+  .hx { color:#9a3412; }                        /* hex values */
+  .pp { color:#6b21a8; font-weight:600; }       /* #pragma directives */
+  .fn { color:#1a56db; }                        /* function names */
+
+  /* Boxes */
+  .box { border-radius:3px; padding:10px 12px; margin:8px 0; border:1px solid; }
+  .bt { font-weight:bold; font-size:12px; margin-bottom:4px; }
+  .box p { font-size:11px; line-height:1.4; }
+  .bb { background:#dbeafe; border-color:#1a56db; } .bb .bt { color:#1a56db; }
+  .bp { background:#f3e8ff; border-color:#6b21a8; } .bp .bt { color:#6b21a8; }
+  .br { background:#fee2e2; border-color:#991b1b; } .br .bt { color:#991b1b; }
+  .bg { background:#dcfce7; border-color:#166534; } .bg .bt { color:#166534; }
+
+  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  @media (max-width:800px) { .g2 { grid-template-columns:1fr; } }
+
+  /* Warn table */
+  .wt td { text-align:left; font-size:11px; vertical-align:top; }
+  .wt td:first-child { font-family:'JetBrains Mono',monospace; font-size:10.5px; }
+
+  /* Config table */
+  .ct td { text-align:left; font-size:10px; }
+  .sth { font-weight:bold; font-size:11px; padding:5px 8px; }
+  .cc { font-family:'JetBrains Mono',monospace; font-size:9.5px; }
+
+  /* Checklist */
+  .ck { list-style:none; padding:0; counter-reset:step; }
+  .ck li { counter-increment:step; display:flex; align-items:flex-start; gap:8px; padding:5px 0; border-bottom:1px solid #a7d9a7; font-size:11px; }
+  .ck li:last-child { border-bottom:none; }
+  .ck li::before { content:counter(step) "."; font-weight:bold; min-width:18px; flex-shrink:0; }
+  .ck code { background:#d4edda; padding:1px 3px; border-radius:2px; font-family:'JetBrains Mono',monospace; font-size:10.5px; }
+  .hi { margin-left:auto; color:#444; font-size:10px; white-space:nowrap; }
+
+  .footer { text-align:center; margin-top:20px; padding:8px; font-size:10px; color:#999; border-top:1px solid #ddd; }
+  .small { font-size:11px; color:#374151; }
+  @media print { .cb,.box { break-inside:avoid; } .container { padding:8px; } }
 </style>
 </head>
 <body>
+<div class="container">
 
-<h1>Correction TP1 &mdash; Exercices 1 et 2</h1>
-
-<!-- ================================================================ -->
-<!-- EXERCICE 1                                                       -->
-<!-- ================================================================ -->
-
-<h2>Correction &mdash; Exercice 1</h2>
-
-<div class="intro-box">
-Je n'ai pas votre exercice 1, donc voici la correction compl&egrave;te avec les
-commentaires d&eacute;taill&eacute;s et les explications de ce qu'on fait &agrave; chaque &eacute;tape.
+<div class="title-box">
+  <h1>FICHE &mdash; Interruptions PIC18F4520</h1>
+  <div class="sub">Scrutation drapeau / interruption sans priorit&eacute; / interruption avec priorit&eacute;</div>
+  <div class="meta">G21 (Info2) &mdash; TP COL_A_A106 &mdash; GEII Mulhouse &mdash; S&eacute;ance 3 du 18 f&eacute;vrier 2026 (8h30&ndash;12h30)</div>
 </div>
 
-<pre>
-<span class="comment">/********************************************************************************/</span>
-<span class="comment">/*  TP1 Exercice 1 : Balayage de la table de transcodage                       */</span>
-<span class="comment">/*  Affiche 0, 1, 2 ... F sur le chiffre 0, 1 seconde par caractere            */</span>
-<span class="comment">/*  Permet de verifier visuellement la table 7 segments                        */</span>
-<span class="comment">/********************************************************************************/</span>
-<span class="directive">#include</span> <span class="string">&lt;p18f4520.h&gt;</span>
-<span class="directive">#include</span> <span class="string">&lt;delays.h&gt;</span>                     <span class="comment">/* Pour utiliser Delay10KTCYx            */</span>
+<!-- ============ CORRESPONDANCE ============ -->
+<div class="sh">Bouton &rarr; Broche &rarr; Interruption &rarr; Bits</div>
 
-<span class="directive">#pragma config</span> OSC = HS               <span class="comment">/* Oscillateur haute vitesse (quartz 10 MHz)    */</span>
-<span class="directive">#pragma config</span> WDT = OFF              <span class="comment">/* Watchdog desactive                           */</span>
+<div class="ts"><table>
+  <tr><th>Bouton</th><th>Broche</th><th>IT</th><th class="cf">Flag (IF)</th><th class="ce">Enable (IE)</th><th class="cg">Front (INTEDG)</th><th class="cp">Priorit&eacute; (IP)</th></tr>
+  <tr><td>BP0</td><td>RB0</td><td>INT0</td><td class="cf">INTCON bit 1</td><td class="ce">INTCON bit 4</td><td class="cg">INTCON2 bit 6</td><td class="cp"><i>toujours haute</i></td></tr>
+  <tr><td>BP1</td><td>RB1</td><td>INT1</td><td class="cf">INTCON3 bit 0</td><td class="ce">INTCON3 bit 3</td><td class="cg">INTCON2 bit 5</td><td class="cp">INTCON3 bit 6</td></tr>
+  <tr><td>BP2</td><td>RB2</td><td>INT2</td><td class="cf">INTCON3 bit 1</td><td class="ce">INTCON3 bit 4</td><td class="cg">INTCON2 bit 4</td><td class="cp">INTCON3 bit 7</td></tr>
+</table></div>
 
-<span class="comment">/* Table 7 segments, logique active bas (0 = segment allume, 1 = eteint)        */</span>
-<span class="comment">/* Ordre des bits : dp g f e d c b a                                            */</span>
-<span class="keyword">const</span> <span class="type">unsigned char</span> TABLE_7SEG[<span class="number">16</span>] = {
-    <span class="number">0xC0</span>, <span class="number">0xF9</span>, <span class="number">0xA4</span>, <span class="number">0xB0</span>,   <span class="comment">/* 0, 1, 2, 3                                   */</span>
-    <span class="number">0x99</span>, <span class="number">0x92</span>, <span class="number">0x82</span>, <span class="number">0xF8</span>,   <span class="comment">/* 4, 5, 6, 7                                   */</span>
-    <span class="number">0x80</span>, <span class="number">0x90</span>, <span class="number">0x88</span>, <span class="number">0x83</span>,   <span class="comment">/* 8, 9, A, b                                   */</span>
-    <span class="number">0xC6</span>, <span class="number">0xA1</span>, <span class="number">0x86</span>, <span class="number">0x8E</span>    <span class="comment">/* C, d, E, F                                   */</span>
-};
+<!-- ============ CARTE DES REGISTRES ============ -->
+<div class="sh">Carte des registres (bit par bit)</div>
 
-<span class="type">void</span> main(<span class="type">void</span>)
+<div class="legend">
+  <span class="cf">IF = Interrupt Flag (voyant)</span>
+  <span class="ce">IE = Interrupt Enable (alarme)</span>
+  <span class="cg">INTEDG = Front</span>
+  <span class="cp">IP = Interrupt Priority</span>
+  <span class="cm">GIE = Global Interrupt Enable (disjoncteur)</span>
+  <span class="cu">Pas utilis&eacute;</span>
+</div>
+
+<div class="rn">INTCON</div>
+<div class="ts"><table class="rt">
+  <tr><td class="cm">bit 7</td><td class="cm">bit 6</td><td class="cu">bit 5</td><td class="ce">bit 4</td><td class="cu">bit 3</td><td class="cu">bit 2</td><td class="cf">bit 1</td><td class="cu">bit 0</td></tr>
+  <tr><td class="cm"><b>GIE/GIEH</b></td><td class="cm"><b>PEIE/GIEL</b></td><td class="cu">TMR0IE</td><td class="ce"><b>INT0IE</b></td><td class="cu">RBIE</td><td class="cu">TMR0IF</td><td class="cf"><b>INT0IF</b></td><td class="cu">RBIF</td></tr>
+  <tr><td>0x80</td><td>0x40</td><td>0x20</td><td>0x10</td><td>0x08</td><td>0x04</td><td>0x02</td><td>0x01</td></tr>
+</table></div>
+<div class="rnote">Bit 7 s'appelle GIE si IPEN=0, ou GIEH (Global Interrupt Enable <b>High</b>) si IPEN=1. Bit 6 s'appelle PEIE si IPEN=0, ou GIEL (<b>Low</b>) si IPEN=1.</div>
+
+<div class="rn">INTCON2</div>
+<div class="ts"><table class="rt">
+  <tr><td class="cu">bit 7</td><td class="cg">bit 6</td><td class="cg">bit 5</td><td class="cg">bit 4</td><td class="cu">bit 3</td><td class="cu">bit 2</td><td class="cu">bit 1</td><td class="cu">bit 0</td></tr>
+  <tr><td class="cu">RBPU</td><td class="cg"><b>INTEDG0</b></td><td class="cg"><b>INTEDG1</b></td><td class="cg"><b>INTEDG2</b></td><td class="cu">---</td><td class="cu">TMR0IP</td><td class="cu">---</td><td class="cu">RBIP</td></tr>
+  <tr><td>0x80</td><td>0x40</td><td>0x20</td><td>0x10</td><td></td><td>0x04</td><td></td><td>0x01</td></tr>
+</table></div>
+
+<div class="rn">INTCON3</div>
+<div class="ts"><table class="rt">
+  <tr><td class="cp">bit 7</td><td class="cp">bit 6</td><td class="cu">bit 5</td><td class="ce">bit 4</td><td class="ce">bit 3</td><td class="cu">bit 2</td><td class="cf">bit 1</td><td class="cf">bit 0</td></tr>
+  <tr><td class="cp"><b>INT2IP</b></td><td class="cp"><b>INT1IP</b></td><td class="cu">---</td><td class="ce"><b>INT2IE</b></td><td class="ce"><b>INT1IE</b></td><td class="cu">---</td><td class="cf"><b>INT2IF</b></td><td class="cf"><b>INT1IF</b></td></tr>
+  <tr><td>0x80</td><td>0x40</td><td></td><td>0x10</td><td>0x08</td><td></td><td>0x02</td><td>0x01</td></tr>
+</table></div>
+
+<div class="rn">RCON <span style="font-weight:normal;font-size:11px;color:#444">(seul IPEN nous concerne)</span></div>
+<div class="ts"><table class="rt">
+  <tr><td class="cp">bit 7</td><td class="cu">bit 6</td><td class="cu">bit 5</td><td class="cu">bit 4</td><td class="cu">bit 3</td><td class="cu">bit 2</td><td class="cu">bit 1</td><td class="cu">bit 0</td></tr>
+  <tr><td class="cp"><b>IPEN</b></td><td class="cu">SBOREN</td><td class="cu">---</td><td class="cu">RI</td><td class="cu">TO</td><td class="cu">PD</td><td class="cu">POR</td><td class="cu">BOR</td></tr>
+  <tr><td>0x80</td><td>0x40</td><td></td><td>0x10</td><td>0x08</td><td>0x04</td><td>0x02</td><td>0x01</td></tr>
+</table></div>
+
+<!-- ============ ISR UNIQUE vs DEUX ISR ============ -->
+<div class="sh">ISR unique vs deux ISR : qu'est-ce que ca veut dire ?</div>
+
+<p class="small" style="margin:4px 0 8px"><b>ISR</b> = Interrupt Service Routine = la fonction que le PIC appelle automatiquement quand une interruption se d&eacute;clenche. <b>RAZ</b> = Remise &Agrave; Z&eacute;ro.</p>
+
+<div class="g2">
+<div class="box bb">
+  <div class="bt">Sans priorit&eacute; (IPEN = 0) : ISR UNIQUE</div>
+  <p>Quand IPEN = 0, le PIC ne connait <b>pas</b> les niveaux de priorit&eacute;. Toutes les interruptions (BP0, BP1, BP2&hellip;) arrivent au <b>m&ecirc;me endroit</b> : le <b>vecteur 0x08</b>. Il n'y a donc qu'<b>une seule fonction ISR</b> (isrHaute). &Agrave; l'int&eacute;rieur, on teste chaque flag pour savoir <i>quel</i> bouton a d&eacute;clench&eacute; :</p>
+  <div class="cb" style="margin-top:6px">
+<pre><span class="pp">#pragma interrupt</span> isrHaute           <span class="cm-c">/* La seule ISR, tout arrive ici         */</span>
+<span class="kw">void</span> <span class="fn">isrHaute</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x01</span>) { ... }       <span class="cm-c">/* C'etait BP1 ?                         */</span>
+    <span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x02</span>) { ... }       <span class="cm-c">/* C'etait BP2 ?                         */</span>
+    <span class="kw">if</span>(<span class="rg">INTCON</span>  &amp; <span class="hx">0x02</span>) { ... }       <span class="cm-c">/* C'etait BP0 ?                         */</span>
+}</pre>
+  </div>
+</div>
+<div class="box bp">
+  <div class="bt">Avec priorit&eacute; (IPEN = 1) : DEUX ISR s&eacute;par&eacute;es</div>
+  <p>Quand IPEN = 1, le PIC a <b>deux niveaux</b>. Les interruptions hautes vont au <b>vecteur 0x08</b> (isrHaute), les basses au <b>vecteur 0x18</b> (isrBasse). On a donc <b>deux fonctions ISR</b> distinctes. La haute peut <b>interrompre</b> la basse, pas l'inverse :</p>
+  <div class="cb" style="margin-top:6px">
+<pre><span class="pp">#pragma interrupt</span> isrHaute           <span class="cm-c">/* Vecteur 0x08 : haute priorite         */</span>
+<span class="kw">void</span> <span class="fn">isrHaute</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x01</span>) { ... }       <span class="cm-c">/* BP1 (configure en haute)              */</span>
+}
+
+<span class="pp">#pragma interruptlow</span> isrBasse        <span class="cm-c">/* Vecteur 0x18 : basse priorite         */</span>
+<span class="kw">void</span> <span class="fn">isrBasse</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x02</span>) { ... }       <span class="cm-c">/* BP2 (configure en basse)              */</span>
+}</pre>
+  </div>
+</div>
+</div>
+
+<!-- ============ QUOI CONFIGURER ============ -->
+<div class="sh">Quoi configurer selon le mode</div>
+
+<div class="ts"><table>
+  <tr><th class="l">&Eacute;tape</th><th>Scrutation drapeau</th><th>interruption sans priorit&eacute;</th><th>interruption avec priorit&eacute;</th></tr>
+  <tr><td class="l cg">Front descendant (INTEDG = 0)</td><td>OUI</td><td>OUI</td><td>OUI</td></tr>
+  <tr><td class="l cf">Effacer le voyant (IF = 0)</td><td>OUI</td><td>OUI</td><td>OUI</td></tr>
+  <tr><td class="l ce">Activer l'alarme (IE = 1)</td><td>NON</td><td>OUI</td><td>OUI</td></tr>
+  <tr><td class="l cp">Choisir priorit&eacute; (IP)</td><td>NON</td><td>NON</td><td>OUI</td></tr>
+  <tr><td class="l cp">Activer mode priorit&eacute; (IPEN = 1)</td><td>NON</td><td>NON</td><td>OUI</td></tr>
+  <tr><td class="l cm">GIE = 1</td><td>NON</td><td>OUI (<code>0x80</code>)</td><td>NON</td></tr>
+  <tr><td class="l cm">GIEH + GIEL = 1</td><td>NON</td><td>NON</td><td>OUI (<code>0xC0</code>)</td></tr>
+  <tr style="font-weight:bold"><td class="l">Nombre d'ISR</td><td>0 (pas d'ISR)</td><td>1 (ISR unique)</td><td>2 (haute + basse)</td></tr>
+  <tr style="font-weight:bold"><td class="l">O&ugrave; tester les flags ?</td><td>dans le while(1)</td><td>dans l'ISR</td><td>dans les ISR</td></tr>
+</table></div>
+
+<!-- ============ SCRUTATION ============ -->
+<div class="sh">Mode 1 : Scrutation drapeau (pas d'ISR, on teste dans la boucle)</div>
+
+<div class="cb">
+<pre><span class="cm-c">/* === Configuration (dans le main, avant le while) === */</span>
+<span class="rg">TRISB</span> = <span class="rg">TRISB</span> | <span class="hx">0x06</span>;                   <span class="cm-c">/* RB1 et RB2 en entree                         */</span>
+<span class="rg">INTCON2</span> = <span class="rg">INTCON2</span> &amp; (~<span class="hx">0x20</span>);            <span class="cm-c">/* INTEDG1=0 : front descendant BP1              */</span>
+<span class="rg">INTCON2</span> = <span class="rg">INTCON2</span> &amp; (~<span class="hx">0x10</span>);            <span class="cm-c">/* INTEDG2=0 : front descendant BP2              */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x01</span>);            <span class="cm-c">/* INT1IF=0 : voyant BP1 eteint au demarrage     */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x02</span>);            <span class="cm-c">/* INT2IF=0 : voyant BP2 eteint au demarrage     */</span>
+<span class="cm-c">/* PAS de IE, PAS de GIE, PAS de priorite, PAS d'ISR */</span>
+
+<span class="cm-c">/* === Dans le while(1) : on regarde les voyants nous-memes === */</span>
+<span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x01</span>)                      <span class="cm-c">/* Voyant BP1 allume ?                           */</span>
 {
-    <span class="type">unsigned char</span> i;
+    <span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x01</span>);        <span class="cm-c">/* Eteindre le voyant (obligatoire)              */</span>
+    <span class="cm-c">/* action BP1 */</span>
+}
+<span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x02</span>)                      <span class="cm-c">/* Voyant BP2 allume ?                           */</span>
+{
+    <span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x02</span>);        <span class="cm-c">/* Eteindre le voyant                            */</span>
+    <span class="cm-c">/* action BP2 */</span>
+}</pre>
+</div>
 
-    <span class="comment">/* --- Initialisation --- */</span>
-    ADCON1 = (ADCON1 &amp; <span class="number">0xF0</span>) | <span class="number">0x0A</span>;  <span class="comment">/* PCFG=1010 : AN5-AN7 en numerique             */</span>
-                                        <span class="comment">/* &amp; 0xF0 preserve bits 7-4 (VCFG)              */</span>
-    TRISD  = <span class="number">0x00</span>;                      <span class="comment">/* RD7 a RD0 en sortie (segments)               */</span>
-    TRISE  = TRISE &amp; <span class="number">0xF8</span>;             <span class="comment">/* RE2-RE0 en sortie (selection chiffre)         */</span>
-                                        <span class="comment">/* &amp; 0xF8 preserve bits 7-3 (PSP)               */</span>
-    PORTD  = <span class="number">0xFF</span>;                      <span class="comment">/* Tous segments eteints (1 = eteint)            */</span>
+<!-- ============ IT SANS PRIORITE ============ -->
+<div class="sh">Mode 2 : Interruption SANS priorit&eacute; (ISR unique au vecteur 0x08)</div>
 
-    <span class="comment">/* --- Boucle principale --- */</span>
-    <span class="keyword">while</span>(<span class="number">1</span>)
-    {
-        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">16</span>; i++)         <span class="comment">/* Parcourir les 16 caracteres hexa             */</span>
-        {
-            PORTE = (PORTE &amp; <span class="number">0xF8</span>) | <span class="number">0x00</span>;   <span class="comment">/* Activer chiffre 0 (sortie 00)         */</span>
-            PORTD = TABLE_7SEG[i];            <span class="comment">/* Charger les segments du caractere i    */</span>
-            Delay10KTCYx(<span class="number">250</span>);                <span class="comment">/* 250 * 10000 * 0.4us = 1 s             */</span>
-        }
+<p class="small" style="margin:3px 0 6px"><b>ISR unique</b> = IPEN est &agrave; 0, donc le PIC n'a qu'un seul niveau. <b>Toutes</b> les interruptions (BP0, BP1, BP2) arrivent au m&ecirc;me vecteur 0x08. Dans l'ISR, on teste chaque flag pour savoir lequel a d&eacute;clench&eacute;.</p>
+
+<div class="cb">
+<pre><span class="cm-c">/* === Configuration (dans le main, avant le while) === */</span>
+<span class="rg">TRISB</span> = <span class="rg">TRISB</span> | <span class="hx">0x06</span>;                   <span class="cm-c">/* RB1 et RB2 en entree                         */</span>
+<span class="rg">INTCON2</span> = <span class="rg">INTCON2</span> &amp; (~<span class="hx">0x20</span>);            <span class="cm-c">/* INTEDG1=0 : front descendant BP1              */</span>
+<span class="rg">INTCON2</span> = <span class="rg">INTCON2</span> &amp; (~<span class="hx">0x10</span>);            <span class="cm-c">/* INTEDG2=0 : front descendant BP2              */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x01</span>);            <span class="cm-c">/* Effacer INT1IF                                */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x02</span>);            <span class="cm-c">/* Effacer INT2IF                                */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> | <span class="hx">0x08</span>;              <span class="cm-c">/* INT1IE=1 : activer alarme BP1                 */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> | <span class="hx">0x10</span>;              <span class="cm-c">/* INT2IE=1 : activer alarme BP2                 */</span>
+<span class="rg">INTCON</span>  = <span class="rg">INTCON</span>  | <span class="hx">0x80</span>;              <span class="cm-c">/* GIE=1 : disjoncteur general EN DERNIER        */</span>
+
+<span class="cm-c">/* === ISR unique (tout arrive a 0x08, on teste chaque flag) === */</span>
+<span class="kw">void</span> <span class="fn">isrHaute</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x01</span>) {                <span class="cm-c">/* C'etait BP1 ?                                 */</span>
+        <span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x01</span>);    <span class="cm-c">/* Eteindre le voyant                            */</span>
+        <span class="cm-c">/* action BP1 */</span>
+    }
+    <span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x02</span>) {                <span class="cm-c">/* C'etait BP2 ?                                 */</span>
+        <span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x02</span>);    <span class="cm-c">/* Eteindre le voyant                            */</span>
+        <span class="cm-c">/* action BP2 */</span>
+    }
+}</pre>
+</div>
+
+<!-- ============ IT AVEC PRIORITE ============ -->
+<div class="sh">Mode 3 : Interruption AVEC priorit&eacute; (deux ISR : 0x08 + 0x18)</div>
+
+<p class="small" style="margin:3px 0 6px"><b>Deux ISR</b> = IPEN est &agrave; 1, donc 2 niveaux. Chaque interruption est assign&eacute;e haute ou basse via son bit IP. Les hautes vont &agrave; 0x08 (isrHaute), les basses &agrave; 0x18 (isrBasse). La haute peut interrompre la basse.</p>
+
+<div class="cb">
+<pre><span class="cm-c">/* === Configuration (dans le main, avant le while) === */</span>
+<span class="rg">TRISB</span> = <span class="rg">TRISB</span> | <span class="hx">0x06</span>;                   <span class="cm-c">/* RB1 et RB2 en entree                         */</span>
+<span class="rg">RCON</span>  = <span class="rg">RCON</span>  | <span class="hx">0x80</span>;                  <span class="cm-c">/* IPEN=1 : activer le mode 2 niveaux            */</span>
+
+<span class="cm-c">/* INT1 (BP1) : HAUTE priorite */</span>
+<span class="rg">INTCON2</span> = <span class="rg">INTCON2</span> &amp; (~<span class="hx">0x20</span>);            <span class="cm-c">/* INTEDG1=0 : front descendant                  */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x01</span>);            <span class="cm-c">/* Effacer INT1IF                                */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> | <span class="hx">0x40</span>;              <span class="cm-c">/* INT1IP=1 : HAUTE priorite                     */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> | <span class="hx">0x08</span>;              <span class="cm-c">/* INT1IE=1 : activer alarme                     */</span>
+
+<span class="cm-c">/* INT2 (BP2) : BASSE priorite */</span>
+<span class="rg">INTCON2</span> = <span class="rg">INTCON2</span> &amp; (~<span class="hx">0x10</span>);            <span class="cm-c">/* INTEDG2=0 : front descendant                  */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x02</span>);            <span class="cm-c">/* Effacer INT2IF                                */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x80</span>);            <span class="cm-c">/* INT2IP=0 : BASSE priorite                     */</span>
+<span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> | <span class="hx">0x10</span>;              <span class="cm-c">/* INT2IE=1 : activer alarme                     */</span>
+
+<span class="rg">INTCON</span>  = <span class="rg">INTCON</span>  | <span class="hx">0xC0</span>;              <span class="cm-c">/* GIEH+GIEL=1 : les 2 disjoncteurs EN DERNIER   */</span>
+
+<span class="cm-c">/* === ISR haute (vecteur 0x08) --- #pragma interrupt === */</span>
+<span class="kw">void</span> <span class="fn">isrHaute</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x01</span>) {
+        <span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x01</span>);
+        <span class="cm-c">/* action BP1 (haute priorite) */</span>
     }
 }
-</pre>
 
-<!-- ================================================================ -->
-<!-- EXERCICE 2                                                       -->
-<!-- ================================================================ -->
-
-<h2>Correction &mdash; Exercice 2</h2>
-
-<div class="intro-box">
-Le masquage de PORTE est bien fait (<span class="code-inline">(PORTE &amp; 0xF8) | affiche[n]</span>), et
-le tableau <span class="code-inline">affiche[]</span> pour les num&eacute;ros de sorties du d&eacute;codeur est une
-bonne approche. La structure de multiplexage (boucle <span class="code-inline">for</span> dans le
-<span class="code-inline">while(1)</span>) fonctionne aussi.<br><br>
-Par contre, les codes 7 segments sont &eacute;crits en dur dans
-<span class="code-inline">chiffre[4] = {0xF9, 0xA4, 0xB0, 0x99}</span> au lieu de d&eacute;composer le
-nombre et d'utiliser la table <span class="code-inline">TRANS[]</span>. &Ccedil;a marche pour 1234, mais si
-on change le nombre il faut tout refaire &agrave; la main. Et pour
-l'exercice 3 (compteur 0&ndash;9999) c'est impossible de faire comme &ccedil;a.
-L'id&eacute;e c'est de :
-<br>1. Stocker le nombre dans une variable (<span class="code-inline">Nombre = 1234</span>)
-<br>2. D&eacute;composer en chiffres individuels &rarr; <span class="code-inline">1</span>, <span class="code-inline">2</span>, <span class="code-inline">3</span>, <span class="code-inline">4</span>
-<br>3. Utiliser la table &rarr; <span class="code-inline">TRANS[1]</span>, <span class="code-inline">TRANS[2]</span>, <span class="code-inline">TRANS[3]</span>, <span class="code-inline">TRANS[4]</span>
-</div>
-
-<div class="points-corriger">
-<p><b>Les autres points &agrave; corriger :</b></p>
-
-<p><span class="point-num">1.</span> <span class="code-inline">ADCON1 = (ADCON1 &amp; 0xF0) | 0xEA</span> : le <span class="code-inline">0xEA</span> &eacute;tait une erreur dans le code de d&eacute;part qui &eacute;tait &agrave; corriger. <span class="code-inline">0xEA = 0b11101010</span>, les 4 bits de poids fort (<span class="code-inline">0xE</span>) &eacute;crasent les bits 7&ndash;4 (VCFG) que le masque <span class="code-inline">&amp; 0xF0</span> &eacute;tait cens&eacute; pr&eacute;server. Il fallait &eacute;crire <span class="code-inline">0x0A</span> et non <span class="code-inline">0xEA</span>.</p>
-
-<p><span class="point-num">2.</span> Il manque <span class="code-inline">#include &lt;delays.h&gt;</span> et un delay dans la boucle. Sans delay, c'est bon pour tester avec les points d'arr&ecirc;t dans MPLAB, mais pour laisser le programme tourner en autonome il en faut un pour que le multiplexage fonctionne correctement.</p>
-
-<p><span class="point-num">3.</span> Pas d'anti-ghosting : avant de charger les nouveaux segments dans PORTD, il faudrait &eacute;teindre tous les chiffres avec <span class="code-inline">PORTE = (PORTE &amp; 0xF8) | 0x07</span> (sortie 07 = rien). Sinon le chiffre pr&eacute;c&eacute;dent affiche bri&egrave;vement les mauvais segments. &Ccedil;a ne se voit pas vu la vitesse du processeur, mais ce n'est pas correct.</p>
-
-<p><span class="point-num">4.</span> Vous pouvez ajouter <span class="code-inline">PORTD = 0xFF;</span> au d&eacute;part pour &eacute;teindre tous les segments avant de commencer.</p>
-</div>
-
-<h3>Version corrig&eacute;e de l'exercice 2</h3>
-<p>Vous pouvez compl&eacute;ter les champs vides <span class="code-inline" style="color:#e06c75;">____</span></p>
-
-<pre>
-<span class="directive">#include</span> <span class="string">&lt;p18f4520.h&gt;</span>
-<span class="directive">#include</span> <span class="string">&lt;<span class="blank">____</span>&gt;</span>                         <span class="comment">/* Pour utiliser Delay1KTCYx            */</span>
-
-<span class="directive">#pragma config</span> OSC = HS
-<span class="directive">#pragma config</span> WDT = OFF
-
-<span class="keyword">const</span> <span class="type">unsigned char</span> TRANS[<span class="number">16</span>] = {
-    <span class="number">0xC0</span>, <span class="number">0xF9</span>, <span class="number">0xA4</span>, <span class="number">0xB0</span>, <span class="number">0x99</span>, <span class="number">0x92</span>, <span class="number">0x82</span>, <span class="number">0xF8</span>,
-    <span class="number">0x80</span>, <span class="number">0x90</span>, <span class="number">0x88</span>, <span class="number">0x83</span>, <span class="number">0xC6</span>, <span class="number">0xA1</span>, <span class="number">0x86</span>, <span class="number">0x8E</span>
-};
-
-<span class="type">void</span> main(<span class="type">void</span>)
-{
-    <span class="type">unsigned int</span> Nombre = <span class="number">1234</span>;
-    <span class="type">unsigned char</span> Chiffre[<span class="number">4</span>];
-    <span class="type">unsigned char</span> i;
-
-    <span class="comment">/* --- Initialisation --- */</span>
-    ADCON1 = (ADCON1 &amp; <span class="number">0xF0</span>) | <span class="blank">____</span>;   <span class="comment">/* AN5-AN7 en numerique (pas 0xEA !)   */</span>
-    TRISD  = <span class="number">0x00</span>;                       <span class="comment">/* Segments en sortie                  */</span>
-    TRISE  = TRISE &amp; <span class="blank">____</span>;              <span class="comment">/* RE2-RE0 en sortie (preserve 7-3)    */</span>
-    PORTD  = <span class="blank">____</span>;                       <span class="comment">/* Tout eteint au depart               */</span>
-    PORTE  = (PORTE &amp; <span class="blank">____</span>) | <span class="blank">____</span>;    <span class="comment">/* Aucun chiffre actif (sortie 07)     */</span>
-
-    <span class="comment">/* --- Decomposition du nombre --- */</span>
-    <span class="comment">/* On decompose Nombre en 4 chiffres individuels                              */</span>
-    <span class="comment">/* puis on utilise la table TRANS[] pour obtenir les segments                  */</span>
-    Chiffre[<span class="number">0</span>] = <span class="blank">____________________</span>;       <span class="comment">/* Milliers  -&gt; chiffre 3         */</span>
-    Chiffre[<span class="number">1</span>] = <span class="blank">____________________</span>;       <span class="comment">/* Centaines -&gt; chiffre 2         */</span>
-    Chiffre[<span class="number">2</span>] = <span class="blank">____________________</span>;       <span class="comment">/* Dizaines  -&gt; chiffre 1         */</span>
-    Chiffre[<span class="number">3</span>] = <span class="blank">____________________</span>;       <span class="comment">/* Unites    -&gt; chiffre 0         */</span>
-
-    <span class="comment">/* --- Multiplexage avec boucle for --- */</span>
-    <span class="comment">/* i=0 : Chiffre[0]=milliers  -&gt; chiffre 3 (sortie 03)                        */</span>
-    <span class="comment">/* i=1 : Chiffre[1]=centaines -&gt; chiffre 2 (sortie 02)                        */</span>
-    <span class="comment">/* i=2 : Chiffre[2]=dizaines  -&gt; chiffre 1 (sortie 01)                        */</span>
-    <span class="comment">/* i=3 : Chiffre[3]=unites    -&gt; chiffre 0 (sortie 00)                        */</span>
-    <span class="comment">/* Astuce : le numero du chiffre = 3 - i                                      */</span>
-    <span class="keyword">while</span>(<span class="number">1</span>)
-    {
-        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++)
-        {
-            PORTE = (PORTE &amp; <span class="blank">____</span>) | <span class="blank">____</span>;           <span class="comment">/* 1. Eteindre            */</span>
-            PORTD = TRANS[ Chiffre[<span class="blank">____</span>] ];            <span class="comment">/* 2. Charger segments    */</span>
-            PORTE = (PORTE &amp; <span class="blank">____</span>) | (<span class="number">3</span> - i);        <span class="comment">/* 3. Allumer chiffre 3-i */</span>
-            Delay1KTCYx(<span class="blank">____</span>);                        <span class="comment">/* 4. Attendre 0.8 ms    */</span>
-        }
+<span class="cm-c">/* === ISR basse (vecteur 0x18) --- #pragma interruptlow === */</span>
+<span class="kw">void</span> <span class="fn">isrBasse</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span>(<span class="rg">INTCON3</span> &amp; <span class="hx">0x02</span>) {
+        <span class="rg">INTCON3</span> = <span class="rg">INTCON3</span> &amp; (~<span class="hx">0x02</span>);
+        <span class="cm-c">/* action BP2 (basse priorite) */</span>
     }
-}
-</pre>
+}</pre>
+</div>
 
+<!-- ============ STRUCTURE ISR ============ -->
+<div class="sh">Structure des vecteurs et ISR (Interrupt Service Routine)</div>
+
+<div class="cb">
+<pre><span class="kw">volatile unsigned char</span> maVariable = <span class="hx">1</span>;  <span class="cm-c">/* volatile OBLIGATOIRE si partagee main/ISR     */</span>
+<span class="kw">void</span> <span class="fn">isrHaute</span>(<span class="kw">void</span>);                    <span class="cm-c">/* Prototype OBLIGATOIRE (sinon erreur au GOTO)  */</span>
+
+<span class="pp">#pragma code</span> vecteur_haute = <span class="hx">0x08</span>       <span class="cm-c">/* Place le code a l'adresse 0x08                */</span>
+<span class="kw">void</span> <span class="fn">VecteurHaute</span>(<span class="kw">void</span>) {
+    _asm GOTO isrHaute _endasm          <span class="cm-c">/* Le PIC saute ici, on redirige vers l'ISR      */</span>
+}
+<span class="pp">#pragma code</span>                            <span class="cm-c">/* Fin du placement force                        */</span>
+
+<span class="pp">#pragma interrupt</span> isrHaute              <span class="cm-c">/* Directive haute priorite                      */</span>
+<span class="kw">void</span> <span class="fn">isrHaute</span>(<span class="kw">void</span>) {
+    <span class="cm-c">/* tester flag, effacer flag, faire l'action */</span>
+}
+
+<span class="cm-c">/* --- Seulement si IPEN = 1 (mode avec priorite) --- */</span>
+<span class="kw">void</span> <span class="fn">isrBasse</span>(<span class="kw">void</span>);                    <span class="cm-c">/* Prototype                                     */</span>
+
+<span class="pp">#pragma code</span> vecteur_basse = <span class="hx">0x18</span>
+<span class="kw">void</span> <span class="fn">VecteurBasse</span>(<span class="kw">void</span>) {
+    _asm GOTO isrBasse _endasm
+}
+<span class="pp">#pragma code</span>
+
+<span class="pp">#pragma interruptlow</span> isrBasse           <span class="cm-c">/* Directive BASSE priorite (pas "interrupt")    */</span>
+<span class="kw">void</span> <span class="fn">isrBasse</span>(<span class="kw">void</span>) {
+    <span class="cm-c">/* tester flag, effacer flag, faire l'action */</span>
+}</pre>
+</div>
+
+<!-- ============ MASQUES ============ -->
+<div class="sh">Memento masques (position du bit &rarr; valeur hexa)</div>
+
+<div class="ts"><table>
+  <tr><th>Bit</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr>
+  <tr><td style="font-weight:bold">Masque</td><td class="tt">0x01</td><td class="tt">0x02</td><td class="tt">0x04</td><td class="tt">0x08</td><td class="tt">0x10</td><td class="tt">0x20</td><td class="tt">0x40</td><td class="tt">0x80</td></tr>
+</table></div>
+
+<div class="ts" style="margin-top:4px"><table>
+  <tr><th class="l">Je veux&hellip;</th><th class="l">Code</th><th class="l">Exemple</th></tr>
+  <tr><td class="l">Mettre un bit a <b>1</b></td><td class="l tt">REG = REG | masque;</td><td class="l tt">INTCON3 = INTCON3 | 0x08;</td></tr>
+  <tr><td class="l">Mettre un bit a <b>0</b></td><td class="l tt">REG = REG &amp; (~masque);</td><td class="l tt">INTCON3 = INTCON3 &amp; (~0x01);</td></tr>
+  <tr><td class="l"><b>Tester</b> un bit</td><td class="l tt">if(REG &amp; masque)</td><td class="l tt">if(INTCON3 &amp; 0x01)</td></tr>
+</table></div>
+
+<!-- ============ ERREURS ============ -->
+<div class="box br" style="margin-top:12px">
+  <div class="bt">Erreurs frequentes</div>
+  <table class="wt" style="width:100%">
+    <tr><td><code>Delay10KTCYx(125);</code> dans l'ISR</td><td><b>NON !</b> Jamais de Delay dans une ISR.</td></tr>
+    <tr><td>Oublier le prototype</td><td>Le compilateur ne connait pas <code>isrHaute</code> au moment du GOTO.</td></tr>
+    <tr><td>Oublier <code>volatile</code></td><td>Le main ne voit jamais le changement fait par l'ISR.</td></tr>
+    <tr><td>GIE = 1 avant la config</td><td>Une interruption peut arriver avant que tout soit pr&ecirc;t.</td></tr>
+    <tr><td><code>RCON | 0x08</code> pour IPEN</td><td><b>NON !</b> IPEN = bit 7 = <code>0x80</code>, pas <code>0x08</code>.</td></tr>
+    <tr><td><code>INTCON3 = 0x00;</code></td><td><b>NON !</b> Ecrase tout. Utiliser <code>INTCON3 = INTCON3 &amp; (~0x01);</code></td></tr>
+    <tr><td><code>#pragma interrupt</code> pour basse</td><td><b>NON !</b> C'est <code>#pragma interruptlow</code> pour la basse priorit&eacute;.</td></tr>
+  </table>
+</div>
+
+<!-- ============ RECAP ============ -->
+<div class="sh" style="margin-top:20px">Tableau r&eacute;capitulatif : chaque bouton, chaque registre, chaque masque</div>
+
+<p class="small" style="margin:3px 0 6px">Ce tableau corrige les erreurs du tableau manuscrit (BP1 avait INT0IF/INT2IE/INT2IP/INTCONB au lieu de INT1IF/INT1IE/INT1IP/INTCON3).</p>
+
+<div class="ts"><table>
+  <tr><th>Bouton</th><th class="l">Quoi / Nature</th><th>Registre</th><th>Bit</th><th>Masque</th><th class="l">Code pour configurer</th></tr>
+  <tr><td rowspan="4" style="font-weight:bold">BP0 / INT0</td><td class="l cf">Voyant (INT0IF)</td><td>INTCON</td><td>bit 1</td><td class="tt">0x02</td><td class="l tt">INTCON = INTCON &amp; (~0x02);</td></tr>
+  <tr><td class="l ce">Alarme (INT0IE)</td><td>INTCON</td><td>bit 4</td><td class="tt">0x10</td><td class="l tt">INTCON = INTCON | 0x10;</td></tr>
+  <tr><td class="l cp">Priorit&eacute; (INT0IP)</td><td colspan="3" style="font-style:italic;color:#666"><i>n'existe pas</i></td><td class="l" style="font-style:italic;color:#666">INT0 est TOUJOURS haute priorit&eacute;</td></tr>
+  <tr><td class="l cg">Front (INTEDG0)</td><td>INTCON2</td><td>bit 6</td><td class="tt">0x40</td><td class="l tt">INTCON2 = INTCON2 &amp; (~0x40);</td></tr>
+  <tr><td rowspan="4" style="font-weight:bold">BP1 / INT1</td><td class="l cf">Voyant (<b>INT1IF</b>)</td><td><b>INTCON3</b></td><td>bit 0</td><td class="tt">0x01</td><td class="l tt">INTCON3 = INTCON3 &amp; (~0x01);</td></tr>
+  <tr><td class="l ce">Alarme (<b>INT1IE</b>)</td><td><b>INTCON3</b></td><td>bit 3</td><td class="tt">0x08</td><td class="l tt">INTCON3 = INTCON3 | 0x08;</td></tr>
+  <tr><td class="l cp">Priorit&eacute; (<b>INT1IP</b>)</td><td><b>INTCON3</b></td><td>bit 6</td><td class="tt">0x40</td><td class="l tt">INTCON3 = INTCON3 | 0x40; <span style="font-size:9px;color:#666">(haute)</span></td></tr>
+  <tr><td class="l cg">Front (INTEDG1)</td><td>INTCON2</td><td>bit 5</td><td class="tt">0x20</td><td class="l tt">INTCON2 = INTCON2 &amp; (~0x20);</td></tr>
+  <tr><td rowspan="4" style="font-weight:bold">BP2 / INT2</td><td class="l cf">Voyant (INT2IF)</td><td>INTCON3</td><td>bit 1</td><td class="tt">0x02</td><td class="l tt">INTCON3 = INTCON3 &amp; (~0x02);</td></tr>
+  <tr><td class="l ce">Alarme (INT2IE)</td><td>INTCON3</td><td>bit 4</td><td class="tt">0x10</td><td class="l tt">INTCON3 = INTCON3 | 0x10;</td></tr>
+  <tr><td class="l cp">Priorit&eacute; (INT2IP)</td><td>INTCON3</td><td>bit 7</td><td class="tt">0x80</td><td class="l tt">INTCON3 = INTCON3 &amp; (~0x80); <span style="font-size:9px;color:#666">(basse)</span></td></tr>
+  <tr><td class="l cg">Front (INTEDG2)</td><td>INTCON2</td><td>bit 4</td><td class="tt">0x10</td><td class="l tt">INTCON2 = INTCON2 &amp; (~0x10);</td></tr>
+  <tr><td colspan="2" class="l cm" style="font-weight:bold">Disjoncteur GIE (sans priorit&eacute;)</td><td>INTCON</td><td>bit 7</td><td class="tt">0x80</td><td class="l tt">INTCON = INTCON | 0x80;</td></tr>
+  <tr><td colspan="2" class="l cm" style="font-weight:bold">Disjoncteurs GIEH + GIEL (avec priorit&eacute;)</td><td>INTCON</td><td>bits 7+6</td><td class="tt">0xC0</td><td class="l tt">INTCON = INTCON | 0xC0;</td></tr>
+  <tr><td colspan="2" class="l cp" style="font-weight:bold">Activer mode priorit&eacute; (IPEN)</td><td>RCON</td><td>bit 7</td><td class="tt">0x80</td><td class="l tt">RCON = RCON | 0x80;</td></tr>
+</table></div>
+
+<!-- ============ CONFIG DETAILLEE ============ -->
+<div class="sh" style="margin-top:14px">Configuration d&eacute;taill&eacute;e : code exact pour chaque mode et chaque bouton</div>
+
+<div class="ts"><table class="ct">
+  <tr><th class="l">&Eacute;tape (dans l'ordre !)</th><th class="l">Scrutation drapeau</th><th class="l">interruption sans priorit&eacute;</th><th class="l">interruption avec priorit&eacute;</th></tr>
+  <tr><td colspan="4" class="sth cg"><b>1. Front descendant (d&eacute;tecter l'appui)</b></td></tr>
+  <tr><td class="l">BP0</td><td class="cc">INTCON2 = INTCON2 &amp; (~0x40);</td><td class="cc">INTCON2 = INTCON2 &amp; (~0x40);</td><td class="cc">INTCON2 = INTCON2 &amp; (~0x40);</td></tr>
+  <tr><td class="l">BP1</td><td class="cc">INTCON2 = INTCON2 &amp; (~0x20);</td><td class="cc">INTCON2 = INTCON2 &amp; (~0x20);</td><td class="cc">INTCON2 = INTCON2 &amp; (~0x20);</td></tr>
+  <tr><td class="l">BP2</td><td class="cc">INTCON2 = INTCON2 &amp; (~0x10);</td><td class="cc">INTCON2 = INTCON2 &amp; (~0x10);</td><td class="cc">INTCON2 = INTCON2 &amp; (~0x10);</td></tr>
+  <tr><td colspan="4" class="sth cf"><b>2. Effacer les voyants (partir propre)</b></td></tr>
+  <tr><td class="l">BP0</td><td class="cc">INTCON  = INTCON  &amp; (~0x02);</td><td class="cc">INTCON  = INTCON  &amp; (~0x02);</td><td class="cc">INTCON  = INTCON  &amp; (~0x02);</td></tr>
+  <tr><td class="l">BP1</td><td class="cc">INTCON3 = INTCON3 &amp; (~0x01);</td><td class="cc">INTCON3 = INTCON3 &amp; (~0x01);</td><td class="cc">INTCON3 = INTCON3 &amp; (~0x01);</td></tr>
+  <tr><td class="l">BP2</td><td class="cc">INTCON3 = INTCON3 &amp; (~0x02);</td><td class="cc">INTCON3 = INTCON3 &amp; (~0x02);</td><td class="cc">INTCON3 = INTCON3 &amp; (~0x02);</td></tr>
+  <tr><td colspan="4" class="sth cp"><b>3. Mode priorit&eacute; (seulement si interruption avec priorit&eacute;)</b></td></tr>
+  <tr><td class="l">IPEN</td><td style="color:#999">---</td><td style="color:#999">---</td><td class="cc">RCON = RCON | 0x80;</td></tr>
+  <tr><td colspan="4" class="sth cp"><b>4. Choisir la priorit&eacute; de chaque IT</b></td></tr>
+  <tr><td class="l">BP0</td><td style="color:#999">---</td><td style="color:#999">---</td><td class="l" style="font-style:italic;color:#666">toujours haute (pas de bit IP)</td></tr>
+  <tr><td class="l">BP1 haute</td><td style="color:#999">---</td><td style="color:#999">---</td><td class="cc">INTCON3 = INTCON3 | 0x40;</td></tr>
+  <tr><td class="l">BP1 basse</td><td style="color:#999">---</td><td style="color:#999">---</td><td class="cc">INTCON3 = INTCON3 &amp; (~0x40);</td></tr>
+  <tr><td class="l">BP2 haute</td><td style="color:#999">---</td><td style="color:#999">---</td><td class="cc">INTCON3 = INTCON3 | 0x80;</td></tr>
+  <tr><td class="l">BP2 basse</td><td style="color:#999">---</td><td style="color:#999">---</td><td class="cc">INTCON3 = INTCON3 &amp; (~0x80);</td></tr>
+  <tr><td colspan="4" class="sth ce"><b>5. Activer les alarmes (seulement si interruption)</b></td></tr>
+  <tr><td class="l">BP0</td><td style="color:#999">---</td><td class="cc">INTCON  = INTCON  | 0x10;</td><td class="cc">INTCON  = INTCON  | 0x10;</td></tr>
+  <tr><td class="l">BP1</td><td style="color:#999">---</td><td class="cc">INTCON3 = INTCON3 | 0x08;</td><td class="cc">INTCON3 = INTCON3 | 0x08;</td></tr>
+  <tr><td class="l">BP2</td><td style="color:#999">---</td><td class="cc">INTCON3 = INTCON3 | 0x10;</td><td class="cc">INTCON3 = INTCON3 | 0x10;</td></tr>
+  <tr><td colspan="4" class="sth cm"><b>6. Disjoncteur g&eacute;n&eacute;ral EN DERNIER (sinon une interruption arrive avant que tout soit pr&ecirc;t !)</b></td></tr>
+  <tr><td class="l">GIE seul</td><td style="color:#999">---</td><td class="cc">INTCON = INTCON | 0x80;</td><td style="color:#999">---</td></tr>
+  <tr><td class="l">GIEH + GIEL</td><td style="color:#999">---</td><td style="color:#999">---</td><td class="cc">INTCON = INTCON | 0xC0;</td></tr>
+</table></div>
+
+<!-- ============ CHECKLIST ============ -->
+<div class="box bg" style="margin-top:14px">
+  <div class="bt">Checklist interruption (dans l'ordre !)</div>
+  <ul class="ck">
+    <li><div><code>TRISB = TRISB | masque;</code></div><span class="hi">Configurer la broche en entr&eacute;e</span></li>
+    <li><div><code>INTCON2 = INTCON2 &amp; (~masque_edge);</code></div><span class="hi">Front descendant (d&eacute;tection appui)</span></li>
+    <li><div><code>registre = registre &amp; (~masque_flag);</code></div><span class="hi">Effacer le voyant (partir propre)</span></li>
+    <li><div><i>(si priorit&eacute;)</i> <code>RCON = RCON | 0x80;</code></div><span class="hi">Activer mode priorit&eacute; (IPEN=1)</span></li>
+    <li><div><i>(si priorit&eacute;)</i> configurer IP (haute = | masque, basse = &amp; ~masque)</div><span class="hi">Choisir le niveau</span></li>
+    <li><div><code>registre = registre | masque_enable;</code></div><span class="hi">Activer l'alarme (IE=1)</span></li>
+    <li><div><code>INTCON = INTCON | 0x80;</code> <i>(ou 0xC0 si priorit&eacute;)</i></div><span class="hi"><b>Disjoncteur EN DERNIER !</b></span></li>
+  </ul>
+</div>
+
+<div class="footer">G21 (Info2) &mdash; S&eacute;ance 3 &mdash; 18/02/2026 &mdash; PIC18F4520 @ 10&thinsp;MHz</div>
+
+</div>
 </body>
 </html>
